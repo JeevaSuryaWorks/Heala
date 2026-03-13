@@ -26,12 +26,6 @@ const DoctorSearch = () => {
         try {
             let query = supabase
                 .from('doctors')
-                // TODO:
-                - [x] **Security & Reliability Update**:
-    - [x] Migrate Supabase credentials to `.env`
-    - [x] Update `supabaseConfig.js` to use env variables
-    - [x] Fix Resend email integration (browser compatibility)
-    - [x] Verify registration flow locally
                 .select(`
                     *,
                     profiles(name, role)
