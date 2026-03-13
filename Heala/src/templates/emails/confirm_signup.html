@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Heala</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .wrapper { width: 100%; padding: 40px 0; background-color: #f8fafc; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header { padding: 40px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); text-align: center; }
+        .header h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+        .content { padding: 40px; color: #1e293b; line-height: 1.6; }
+        .content h2 { margin-top: 0; color: #0f172a; font-size: 24px; font-weight: 700; }
+        .button-container { padding: 30px 0; text-align: center; }
+        .button { display: inline-block; padding: 16px 36px; background-color: #6366f1; color: #ffffff !important; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        .footer { padding: 30px; background-color: #f1f5f9; text-align: center; color: #64748b; font-size: 13px; }
+        .footer p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>Heala<span>.</span></h1>
+            </div>
+            <div class="content">
+                <h2>Welcome to the Future of Care</h2>
+                <p>Hello there,</p>
+                <p>Thank you for choosing Heala. We're excited to have you join our premium healthcare network. To get started and secure your clinical portal, please confirm your email address below.</p>
+                
+                <div class="button-container">
+                    <a href="{{ .ConfirmationURL }}" class="button" target="_blank">Confirm Your Account</a>
+                </div>
+                
+                <p>Once confirmed, you'll have full access to book appointments with experts or manage your clinical dashboard.</p>
+                <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
+                <p style="word-break: break-all; font-size: 12px; color: #6366f1;">{{ .ConfirmationURL }}</p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2026 Heala. All rights reserved.</p>
+                <p>Ensuring premium clinical excellence for everyone.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
