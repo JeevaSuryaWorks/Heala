@@ -10,6 +10,7 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     const [activeTab, setActiveTab] = useState(defaultTab);
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(null);
     const [prescription, setPrescription] = useState('');
+    const [actionLoading, setActionLoading] = useState(null); // Track which appointment ID is processing
 
     useEffect(() => {
         setActiveTab(defaultTab);
@@ -18,6 +19,26 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     useEffect(() => {
         if (user) {
             fetchDoctorData();
+            
+            // Listen for verification status changes
+            const channel = supabase
+                .channel(`doctor_status_${user.id}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'doctors',
+                        filter: `profile_id=eq.${user.id}`
+                    },
+                    (payload) => {
+                        console.log('Realtime status update received:', payload.new);
+                        fetchDoctorData(); // Refresh everything when status changes
+                    }
+                )
+                .subscribe();
+
+            return () => supabase.removeChannel(channel);
         }
     }, [user]);
 
@@ -31,8 +52,23 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                 .eq('profile_id', user.id)
                 .single();
 
-            if (profileError) throw profileError;
-            setDoctorProfile(profile);
+            // Mapping schema columns to UI expected format
+            const formattedProfile = {
+                ...profile,
+                availability: {}
+            };
+            
+            if (profile.available_days && profile.available_time) {
+                profile.available_days.forEach(day => {
+                    formattedProfile.availability[day.toLowerCase()] = [
+                        profile.available_time.start,
+                        profile.available_time.end
+                    ];
+                });
+            }
+            
+            console.log('Dashboard profile formatted:', formattedProfile);
+            setDoctorProfile(formattedProfile);
 
             // 2. Fetch Appointments
             const { data: apts, error: aptError } = await supabase
@@ -41,7 +77,11 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                 .eq('doctor_id', profile.id)
                 .order('created_at', { ascending: false });
 
-            if (aptError) throw aptError;
+            if (aptError) {
+                console.error('Appointments fetch error:', aptError);
+                throw aptError;
+            }
+            console.log('Dashboard appointments count:', apts?.length || 0);
             setAppointments(apts || []);
         } catch (error) {
             console.error('Error fetching doctor data:', error.message);
@@ -65,6 +105,7 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     };
 
     const handleStatusUpdate = async (id, status) => {
+        setActionLoading(id);
         try {
             const { error } = await supabase
                 .from('appointments')
@@ -72,9 +113,19 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                 .eq('id', id);
 
             if (error) throw error;
+            
+            // Optimistic update
+            setAppointments(prev => prev.map(apt => 
+                apt.id === id ? { ...apt, status } : apt
+            ));
+            
+            // Still fetch fresh data to sync
             fetchDoctorData();
         } catch (error) {
             console.error('Error updating status:', error.message);
+            alert('Failed to update status. Please try again.');
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -136,40 +187,42 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                         <p style={{ color: 'var(--color-text-secondary)', fontWeight: '600' }}>Manage clinical sessions and patient records.</p>
                     </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-                        {/* Consultation Method Toggle */}
-                        <div style={{ 
-                            display: 'flex', background: 'rgba(255, 255, 255, 0.03)', padding: '4px', 
-                            borderRadius: '14px', border: '1px solid var(--glass-border)' 
-                        }}>
-                            <button 
-                                onClick={() => handleProfileUpdate({ consultation_method: 'direct' })}
-                                style={{
-                                    padding: '0.6rem 1rem', borderRadius: '10px', border: 'none',
-                                    background: doctorProfile.consultation_method === 'direct' ? 'var(--color-primary)' : 'transparent',
-                                    color: doctorProfile.consultation_method === 'direct' ? 'white' : 'var(--color-text-secondary)',
-                                    fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease'
-                                }}
-                            >Direct</button>
-                            <button 
-                                onClick={() => handleProfileUpdate({ consultation_method: 'video' })}
-                                style={{
-                                    padding: '0.6rem 1rem', borderRadius: '10px', border: 'none',
-                                    background: doctorProfile.consultation_method === 'video' ? 'var(--color-primary)' : 'transparent',
-                                    color: doctorProfile.consultation_method === 'video' ? 'white' : 'var(--color-text-secondary)',
-                                    fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease'
-                                }}
-                            >Video Call</button>
-                        </div>
+                    {doctorProfile.verification_status === 'approved' && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                            {/* Consultation Method Toggle */}
+                            <div style={{ 
+                                display: 'flex', background: 'rgba(255, 255, 255, 0.03)', padding: '4px', 
+                                borderRadius: '14px', border: '1px solid var(--glass-border)' 
+                            }}>
+                                <button 
+                                    onClick={() => handleProfileUpdate({ consultation_method: 'direct' })}
+                                    style={{
+                                        padding: '0.6rem 1rem', borderRadius: '10px', border: 'none',
+                                        background: doctorProfile.consultation_method === 'direct' ? 'var(--color-primary)' : 'transparent',
+                                        color: doctorProfile.consultation_method === 'direct' ? 'white' : 'var(--color-text-secondary)',
+                                        fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease'
+                                    }}
+                                >Direct</button>
+                                <button 
+                                    onClick={() => handleProfileUpdate({ consultation_method: 'video' })}
+                                    style={{
+                                        padding: '0.6rem 1rem', borderRadius: '10px', border: 'none',
+                                        background: doctorProfile.consultation_method === 'video' ? 'var(--color-primary)' : 'transparent',
+                                        color: doctorProfile.consultation_method === 'video' ? 'white' : 'var(--color-text-secondary)',
+                                        fontSize: '0.8rem', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease'
+                                    }}
+                                >Video Call</button>
+                            </div>
 
-                        <div style={{ 
-                            background: doctorProfile.verification_status === 'approved' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)', 
-                            color: doctorProfile.verification_status === 'approved' ? '#10b981' : '#f59e0b', 
-                            padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '900' 
-                        }}>
-                            {doctorProfile.verification_status?.[0].toUpperCase() + doctorProfile.verification_status?.slice(1)}
+                            <div style={{ 
+                                background: 'rgba(16, 185, 129, 0.1)', 
+                                color: '#10b981', 
+                                padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '900' 
+                            }}>
+                                Approved
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </header>
 
                 {doctorProfile.verification_status === 'pending' ? (
@@ -185,7 +238,29 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                             Your medical credentials (<strong>License: {doctorProfile.license_number}</strong>) are currently being reviewed by our medical board. 
                             You'll receive full portal access once approved.
                         </p>
-                        <div style={{ color: 'var(--color-primary)', fontWeight: '800', fontSize: '0.9rem' }}>Typical review time: 24-48 hours</div>
+                        <div style={{ marginBottom: '2.5rem' }}>
+                            <div style={{ color: 'var(--color-primary)', fontWeight: '800', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Typical review time: 24-48 hours</div>
+                            
+                            <div style={{ height: '1px', background: 'var(--glass-border)', width: '200px', margin: '0 auto 2rem' }} />
+                            
+                            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '1rem', fontWeight: '700' }}>Need urgent assistance?</p>
+                            <a 
+                                href="https://wa.me/919043670372" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ 
+                                    display: 'inline-flex', alignItems: 'center', gap: '0.8rem', 
+                                    padding: '1rem 2rem', background: '#25D366', color: 'white', 
+                                    borderRadius: '18px', textDecoration: 'none', fontWeight: '900', 
+                                    fontSize: '0.95rem', boxShadow: '0 10px 20px -5px rgba(37, 211, 102, 0.3)',
+                                    transition: 'transform 0.3s ease'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-3px)'}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                            >
+                                <span style={{ fontSize: '1.2rem' }}>💬</span> Contact Admin Specialist
+                            </a>
+                        </div>
                     </div>
                 ) : (
                     <>
@@ -249,14 +324,20 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                                                 }}>{apt.status.toUpperCase()}</span>
                                                 
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                    {apt.status === 'pending' && (
+                                                    {actionLoading === apt.id ? (
+                                                        <div style={{ width: '24px', height: '24px', border: '3px solid var(--glass-border)', borderTopColor: 'var(--color-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                                                    ) : (
                                                         <>
-                                                            <button onClick={() => handleStatusUpdate(apt.id, 'accepted')} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: '800', cursor: 'pointer' }}>Accept</button>
-                                                            <button onClick={() => handleStatusUpdate(apt.id, 'cancelled')} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: '700', cursor: 'pointer' }}>Decline</button>
+                                                            {apt.status === 'pending' && (
+                                                                <>
+                                                                    <button onClick={() => handleStatusUpdate(apt.id, 'accepted')} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease' }}>Accept</button>
+                                                                    <button onClick={() => handleStatusUpdate(apt.id, 'cancelled')} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: '700', cursor: 'pointer' }}>Decline</button>
+                                                                </>
+                                                            )}
+                                                            {apt.status === 'accepted' && (
+                                                                <button onClick={() => setShowPrescriptionModal(apt)} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: 'none', background: '#10b981', color: 'white', fontWeight: '800', cursor: 'pointer' }}>Complete</button>
+                                                            )}
                                                         </>
-                                                    )}
-                                                    {apt.status === 'accepted' && (
-                                                        <button onClick={() => setShowPrescriptionModal(apt)} style={{ padding: '0.5rem 1rem', borderRadius: '10px', border: 'none', background: '#10b981', color: 'white', fontWeight: '800', cursor: 'pointer' }}>Complete</button>
                                                     )}
                                                 </div>
                                             </div>

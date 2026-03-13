@@ -102,13 +102,20 @@ const AdminDashboard = () => {
     };
 
     const handleVerification = async (doc, status) => {
+        // Optimistic Update
+        const previousDoctors = [...doctors];
+        setDoctors(prev => prev.map(d => d.id === doc.id ? { ...d, verification_status: status } : d));
+
         try {
             const { error } = await supabase.from('doctors').update({ verification_status: status }).eq('id', doc.id);
             if (error) throw error;
             logActivity('DOCTOR_VERIFIED', { doctor: doc.profiles?.name, status });
-            alert(`Doctor ${status} successfully!`);
+            // Alert is slow, let's use a non-blocking notification if possible, but for now just console
+            console.log(`Doctor ${status} successfully!`);
         } catch (error) {
             console.error('Error verifying doctor:', error.message);
+            setDoctors(previousDoctors); // Rollback
+            alert('Failed to update status: ' + error.message);
         }
     };
 

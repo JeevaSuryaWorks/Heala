@@ -1,25 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../config/supabaseConfig';
+
 
 const DoctorProfile = () => {
     const { id } = useParams();
     const [doctor, setDoctor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('about');
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         if (id) {
             fetchDoctorProfile();
         }
+        fetchUser();
     }, [id]);
+
+    const fetchUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+    };
 
     const fetchDoctorProfile = async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
                 .from('doctors')
-                .select('*, profiles(name, email)')
+                .select('*, profiles(name, email, phone)')
                 .eq('id', id)
                 .single();
 
@@ -84,8 +92,35 @@ const DoctorProfile = () => {
                         </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <Link to={`/book/${doctor.id}`} style={{ padding: '1.2rem 2.5rem', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '900', textDecoration: 'none', textAlign: 'center', boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.4)' }}>Reserve Session</Link>
-                        <button style={{ padding: '1.2rem 2.5rem', background: 'rgba(255,255,255,0.03)', color: 'var(--color-text-primary)', border: '1px solid var(--glass-border)', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '800', cursor: 'pointer' }}>Download CV</button>
+                        <Link to={`/book/${doctor.id}`} style={{ padding: '1.2rem 2.5rem', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '900', textDecoration: 'none', textAlign: 'center', boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.4)', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'var(--color-accent)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'var(--color-primary)'; }}>Reserve Session</Link>
+                        <a 
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.latitude || 13.0827},${doctor.longitude || 80.2707}&travelmode=driving`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                                padding: '1.2rem 2.5rem', 
+                                background: 'rgba(255,255,255,0.03)', 
+                                color: 'var(--color-text-primary)', 
+                                border: '1px solid var(--glass-border)', 
+                                borderRadius: '20px', 
+                                fontSize: '1.1rem', 
+                                fontWeight: '800', 
+                                textDecoration: 'none',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                            }}
+                        >
+                            Navigate to Clinic
+                        </a>
                     </div>
                 </div>
 
@@ -93,7 +128,7 @@ const DoctorProfile = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
                     <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', border: '1px solid var(--glass-border)', borderRadius: '40px', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--glass-border)' }}>
-                            {['about', 'availability', 'publications'].map(tab => (
+                            {['about', 'availability', 'location'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
@@ -143,6 +178,68 @@ const DoctorProfile = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {activeTab === 'location' && (
+                                <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                                    <h3 style={{ fontSize: '1.8rem', fontWeight: '900', marginBottom: '2.5rem' }}>Clinic Location</h3>
+                                    
+                                    <div style={{ 
+                                        background: 'rgba(255,255,255,0.03)', 
+                                        border: '1px solid var(--glass-border)', 
+                                        borderRadius: '32px', 
+                                        padding: '4rem',
+                                        textAlign: 'center',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '2rem'
+                                    }}>
+                                        <div style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
+                                            📍
+                                        </div>
+                                        <div>
+                                            <h4 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>{doctor.clinic_name || 'Clinic Center'}</h4>
+                                            <p style={{ fontSize: '1.1rem', color: 'var(--color-text-secondary)', maxWidth: '400px', margin: '0 auto' }}>{doctor.clinic_address || 'Healthcare Block, Sector 12, Medical City'}</p>
+                                        </div>
+
+                                        <div style={{ width: '100%', height: '1px', background: 'var(--glass-border)', margin: '1rem 0' }} />
+
+                                        <p style={{ fontSize: '1rem', color: 'var(--color-text-secondary)', fontWeight: '600' }}>
+                                            Ready to visit? Get real-time turn-by-turn directions directly to the clinic.
+                                        </p>
+
+                                        <a 
+                                            href={`https://www.google.com/maps/dir/?api=1&destination=${doctor.latitude || 13.0827},${doctor.longitude || 80.2707}&travelmode=driving`} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            style={{ 
+                                                padding: '1.5rem 3.5rem', 
+                                                background: 'var(--color-primary)', 
+                                                color: 'white', 
+                                                borderRadius: '24px', 
+                                                textDecoration: 'none', 
+                                                fontWeight: '900',
+                                                fontSize: '1.2rem',
+                                                boxShadow: '0 20px 40px -10px rgba(139, 92, 246, 0.5)',
+                                                transition: 'all 0.3s ease',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '1rem'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.transform = 'translateY(-4px)';
+                                                e.currentTarget.style.boxShadow = '0 25px 50px -10px rgba(139, 92, 246, 0.6)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(139, 92, 246, 0.5)';
+                                            }}
+                                        >
+                                            🚀 Start Navigation
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -161,14 +258,14 @@ const DoctorProfile = () => {
                                     <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>📞</div>
                                     <div>
                                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: '700' }}>Consultation Line</p>
-                                        <p style={{ margin: '0.2rem 0 0', fontWeight: '800', color: 'var(--color-text-primary)' }}>{user?.phone || '+91 00000 00000'}</p>
+                                        <p style={{ margin: '0.2rem 0 0', fontWeight: '800', color: 'var(--color-text-primary)' }}>{doctor.profiles?.phone || '+91 00000 00000'}</p>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '1.5rem' }}>
                                     <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>✉</div>
                                     <div>
                                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontWeight: '700' }}>Digital Reach</p>
-                                        <p style={{ margin: '0.2rem 0 0', fontWeight: '800', color: 'var(--color-text-primary)' }}>{doctor.profiles.email}</p>
+                                        <p style={{ margin: '0.2rem 0 0', fontWeight: '800', color: 'var(--color-text-primary)' }}>{doctor.profiles?.email}</p>
                                     </div>
                                 </div>
                             </div>

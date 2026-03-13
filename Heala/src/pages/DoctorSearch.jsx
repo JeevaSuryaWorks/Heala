@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../config/supabaseConfig';
+import { Link } from 'react-router-dom';
 
 const DoctorSearch = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
-        specialization: searchParams.get('specialization') || '',
-        location: searchParams.get('location') || '',
-        maxFees: searchParams.get('maxFees') || ''
+        specialization: '',
+        searchQuery: ''
     });
-
-    const specializations = [
-        'Cardiologist', 'Dermatologist', 'Pediatrician',
-        'Neurologist', 'Orthopedic Surgeon', 'General Physician'
-    ];
 
     useEffect(() => {
         fetchDoctors();
@@ -35,14 +28,13 @@ const DoctorSearch = () => {
             if (filters.specialization) {
                 query = query.eq('specialization', filters.specialization);
             }
-            if (filters.maxFees) {
-                query = query.lte('fee', parseInt(filters.maxFees));
+
+            if (filters.searchQuery) {
+                query = query.ilike('profiles.name', `%${filters.searchQuery}%`);
             }
 
             const { data, error } = await query;
             if (error) throw error;
-            
-            // Note: Location filter is currently in profiles or we might need to add it to doctors
             setDoctors(data || []);
         } catch (error) {
             console.error('Error fetching doctors:', error.message);
@@ -51,173 +43,115 @@ const DoctorSearch = () => {
         }
     };
 
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prev => ({ ...prev, [name]: value }));
-
-        const newParams = new URLSearchParams(searchParams);
-        if (value) newParams.set(name, value);
-        else newParams.delete(name);
-        setSearchParams(newParams);
-    };
-
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'var(--color-bg-primary)',
-            padding: '4rem 2rem',
-            position: 'relative',
-            overflow: 'hidden'
-        }}>
-            {/* Ambient Elements */}
-            <div style={{ position: 'absolute', top: '10%', left: '5%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)', filter: 'blur(120px)', opacity: 0.08, zIndex: 0 }} />
+        <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', padding: '6rem 2rem', position: 'relative', overflow: 'hidden' }}>
+            {/* Animated Background Orbs */}
+            <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)', filter: 'blur(120px)', opacity: 0.08, zIndex: 0 }} />
+            <div style={{ position: 'absolute', bottom: '10%', left: '-5%', width: '30vw', height: '30vw', background: 'radial-gradient(circle, var(--color-accent) 0%, transparent 70%)', filter: 'blur(100px)', opacity: 0.05, zIndex: 0 }} />
 
-            <div className="container" style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
-                <header style={{ marginBottom: '4rem', textAlign: 'center' }}>
-                    <h1 style={{ fontFamily: '"Outfit", sans-serif', fontSize: '3rem', fontWeight: '900', color: 'var(--color-text-primary)', marginBottom: '1rem', letterSpacing: '-1.5px' }}>
-                        Find Specialists<span style={{ color: 'var(--color-primary)' }}>.</span>
-                    </h1>
-                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
-                        Connect with top-tier healthcare professionals in our global network.
-                    </p>
+            <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+                <header style={{ textAlign: 'center', marginBottom: '5rem' }}>
+                    <h1 style={{ fontSize: '4.5rem', fontWeight: '900', color: 'var(--color-text-primary)', marginBottom: '1.5rem', letterSpacing: '-2.5px' }}>Find Your <span style={{ color: 'var(--color-primary)' }}>Specialist</span></h1>
+                    <p style={{ fontSize: '1.4rem', color: 'var(--color-text-secondary)', maxWidth: '700px', margin: '0 auto', fontWeight: '600' }}>Connect with certified experts for personalized care and advanced medical solutions.</p>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '3rem' }}>
-                    {/* Filters Sidebar */}
-                    <aside style={{
-                        background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)',
-                        borderRadius: '32px', padding: '2.5rem', height: 'fit-content', boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
-                        position: 'sticky', top: '100px'
-                    }}>
-                        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>Filters</h3>
+                {/* Glass Filter Bar */}
+                <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', border: '1px solid var(--glass-border)', borderRadius: '32px', padding: '2.5rem', marginBottom: '4rem', display: 'flex', gap: '2rem', alignItems: 'center', boxShadow: '0 25px 60px -15px rgba(0,0,0,0.3)', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '300px', position: 'relative' }}>
+                        <input
+                            type="text"
+                            placeholder="Search by expert name..."
+                            value={filters.searchQuery}
+                            onChange={(e) => setFilters({ ...filters, searchQuery: e.target.value })}
+                            style={{ width: '100%', padding: '1.4rem 2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '20px', color: 'var(--color-text-primary)', fontSize: '1.1rem', fontWeight: '700', outline: 'none', transition: 'all 0.3s ease' }}
+                        />
+                    </div>
+                    <select
+                        value={filters.specialization}
+                        onChange={(e) => setFilters({ ...filters, specialization: e.target.value })}
+                        style={{ padding: '1.4rem 2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '20px', color: 'var(--color-text-primary)', fontSize: '1.1rem', fontWeight: '700', minWidth: '220px', cursor: 'pointer' }}
+                    >
+                        <option value="" style={{ background: '#1a1a1a' }}>All Specialities</option>
+                        <option value="Cardiology" style={{ background: '#1a1a1a' }}>Cardiology</option>
+                        <option value="Dermatology" style={{ background: '#1a1a1a' }}>Dermatology</option>
+                        <option value="Neurology" style={{ background: '#1a1a1a' }}>Neurology</option>
+                        <option value="General Physician" style={{ background: '#1a1a1a' }}>General Physician</option>
+                    </select>
+                </div>
 
-                        <div style={{ marginBottom: '2rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '1rem', fontWeight: '700', color: 'var(--color-text-secondary)' }}>Specialization</label>
-                            <select
-                                name="specialization"
-                                value={filters.specialization}
-                                onChange={handleFilterChange}
+                {loading ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '2.5rem' }}>
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} style={{ height: '480px', background: 'var(--glass-bg)', borderRadius: '40px', border: '1px solid var(--glass-border)', animation: 'pulse 1.5s infinite linear' }} />
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '2.5rem' }}>
+                        {doctors.map(doctor => (
+                            <div
+                                key={doctor.id}
                                 style={{
-                                    width: '100%', padding: '1rem 1.2rem', background: 'rgba(255,255,255,0.03)',
-                                    border: '1px solid var(--glass-border)', borderRadius: '16px', color: 'var(--color-text-primary)',
-                                    outline: 'none', transition: 'all 0.3s ease'
+                                    background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', border: '1px solid var(--glass-border)',
+                                    borderRadius: '40px', padding: '3rem', transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                                    display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden',
+                                    animation: 'slideUp 0.8s ease'
                                 }}
+                                className="doctor-card"
                             >
-                                <option value="">All Fields</option>
-                                {specializations.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
-                        </div>
+                                <div style={{ position: 'absolute', top: '2rem', right: '2rem' }}>
+                                    <span style={{ padding: '0.5rem 1rem', background: 'rgba(139, 92, 246, 0.1)', color: 'var(--color-primary)', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900' }}>★ {doctor.rating || '5.0'}</span>
+                                </div>
 
-                        <div style={{ marginBottom: '2rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.8rem', fontSize: '1rem', fontWeight: '700', color: 'var(--color-text-secondary)' }}>Max Fee</label>
-                            <input
-                                name="maxFees"
-                                type="range"
-                                min="200"
-                                max="2000"
-                                step="100"
-                                value={filters.maxFees || 2000}
-                                onChange={handleFilterChange}
-                                style={{ width: '100%', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
-                            />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontWeight: '600', color: 'var(--color-primary)' }}>
-                                <span>₹200</span>
-                                <span>₹{filters.maxFees || 2000}</span>
-                            </div>
-                        </div>
+                                <div style={{ width: '100px', height: '100px', borderRadius: '32px', background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2.5rem', fontWeight: '900', marginBottom: '2rem', boxShadow: '0 15px 30px -10px rgba(139, 92, 246, 0.5)' }}>
+                                    {doctor.profiles?.name?.charAt(0)}
+                                </div>
 
-                        <button
-                            onClick={() => setFilters({ specialization: '', location: '', maxFees: '' })}
-                            style={{
-                                width: '100%', padding: '1rem', borderRadius: '16px', border: '1px solid var(--glass-border)',
-                                background: 'transparent', color: 'var(--color-text-primary)', fontWeight: '800', cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                        >
-                            Reset Defaults
-                        </button>
-                    </aside>
+                                <h3 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'var(--color-text-primary)', marginBottom: '0.5rem', letterSpacing: '-0.5px' }}>{doctor.profiles?.name}</h3>
+                                <p style={{ fontSize: '1.1rem', color: 'var(--color-primary)', fontWeight: '800', marginBottom: '1.5rem' }}>{doctor.specialization}</p>
 
-                    {/* Results Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
-                        {loading ? (
-                             [1,2,3,4].map(i => (
-                                <div key={i} style={{ height: '300px', background: 'var(--glass-bg)', borderRadius: '32px', border: '1px solid var(--glass-border)', animation: 'pulse 1.5s infinite' }} />
-                             ))
-                        ) : doctors.length > 0 ? (
-                            doctors.map(doctor => (
-                                <div key={doctor.id} className="doctor-card" style={{
-                                    background: 'var(--glass-bg)', backdropFilter: 'blur(20px)', border: '1px solid var(--glass-border)',
-                                    borderRadius: '32px', padding: '2rem', display: 'flex', flexDirection: 'column',
-                                    transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', position: 'relative', overflow: 'hidden'
-                                }}>
-                                    <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem' }}>
-                                        <div style={{
-                                            width: '80px', height: '80px', borderRadius: '24px',
-                                            background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            color: 'white', fontSize: '1.8rem', fontWeight: '900',
-                                            boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.4)'
-                                        }}>
-                                            {doctor.profiles?.name?.charAt(0) || 'D'}
-                                        </div>
-                                        <div>
-                                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.3rem 0.8rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '800', display: 'inline-block', marginBottom: '0.5rem' }}>VERIFIED</div>
-                                            <h4 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>{doctor.profiles?.name}</h4>
-                                            <p style={{ color: 'var(--color-primary)', fontWeight: '700', fontSize: '0.9rem', margin: 0 }}>{doctor.specialization}</p>
-                                        </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2.5rem' }}>
+                                    <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid var(--glass-border)' }}>
+                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: '700', textTransform: 'uppercase' }}>Exp.</p>
+                                        <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '900', color: 'var(--color-text-primary)' }}>{doctor.experience}</p>
                                     </div>
-
-                                    <div style={{ marginBottom: '2rem', flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
-                                            <span style={{ color: '#f59e0b', fontSize: '1.2rem' }}>★</span>
-                                            <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>4.9</span>
-                                            <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>(120+ Reviews)</span>
-                                        </div>
-                                        <div style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                            <p style={{ margin: 0 }}>📍 {doctor.location || 'Virtual Clinic'}</p>
-                                            <p style={{ margin: 0, fontWeight: '700', color: 'var(--color-text-primary)' }}>💰 ₹{doctor.fee} per session</p>
-                                        </div>
-                                    </div>
-
-                                    <div style={{ display: 'flex', gap: '1rem' }}>
-                                        <Link to={`/doctor/${doctor.id}`} style={{
-                                            flex: 1, padding: '1rem', borderRadius: '16px', border: '1px solid var(--glass-border)',
-                                            background: 'transparent', color: 'var(--color-text-primary)', textDecoration: 'none',
-                                            textAlign: 'center', fontWeight: '700', transition: 'all 0.3s ease'
-                                        }}>Profile</Link>
-                                        <Link to={`/book/${doctor.id}`} style={{
-                                            flex: 2, padding: '1rem', borderRadius: '16px', border: 'none',
-                                            background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-                                            color: 'white', textDecoration: 'none', textAlign: 'center', fontWeight: '800',
-                                            boxShadow: '0 8px 15px -3px rgba(139, 92, 246, 0.3)', transition: 'all 0.3s ease'
-                                        }}>Book Session</Link>
+                                    <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '18px', border: '1px solid var(--glass-border)' }}>
+                                        <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: '700', textTransform: 'uppercase' }}>Fee</p>
+                                        <p style={{ margin: 0, fontSize: '1.1rem', fontWeight: '900', color: 'var(--color-text-primary)' }}>₹{doctor.fee}</p>
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem', background: 'var(--glass-bg)', borderRadius: '32px' }}>
-                                <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>No Specialists Found</h3>
-                                <p style={{ color: 'var(--color-text-secondary)' }}>Try adjusting your search criteria.</p>
+
+                                <div style={{ marginTop: 'auto', display: 'flex', gap: '1rem' }}>
+                                    <Link 
+                                        to={`/doctor/${doctor.id}`} 
+                                        style={{ flex: 1, padding: '1.2rem', background: 'rgba(255,255,255,0.03)', color: 'var(--color-text-primary)', textAlign: 'center', borderRadius: '20px', fontWeight: '800', textDecoration: 'none', border: '1px solid var(--glass-border)', transition: 'all 0.3s ease' }}
+                                        className="btn-secondary"
+                                    >Profile</Link>
+                                    <Link 
+                                        to={`/book/${doctor.id}`} 
+                                        style={{ flex: 1.5, padding: '1.2rem', background: 'var(--color-primary)', color: 'white', textAlign: 'center', borderRadius: '20px', fontWeight: '900', textDecoration: 'none', boxShadow: '0 8px 20px -5px rgba(139, 92, 246, 0.4)', transition: 'all 0.3s ease' }}
+                                        className="btn-primary"
+                                    >Book Now</Link>
+                                </div>
                             </div>
-                        )}
+                        ))}
                     </div>
-                </div>
+                )}
+
+                {!loading && doctors.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '10rem 0' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '2rem' }}>🔍</div>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: '900', color: 'var(--color-text-primary)', marginBottom: '1rem' }}>No Experts Found</h2>
+                        <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)' }}>Try adjusting your filters or search query.</p>
+                    </div>
+                )}
             </div>
 
             <style>{`
-                @keyframes pulse {
-                    0% { opacity: 0.6; }
-                    50% { opacity: 0.3; }
-                    100% { opacity: 0.6; }
-                }
-                .doctor-card:hover {
-                    transform: translateY(-8px);
-                    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.15);
-                    border-color: var(--color-primary);
-                }
+                @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 0.8; } 100% { opacity: 0.5; } }
+                @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+                .doctor-card:hover { transform: translateY(-12px); border-color: var(--color-primary); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.4); }
+                .btn-primary:hover { background: var(--color-accent); transform: scale(1.02); }
+                .btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: var(--color-primary); }
             `}</style>
         </div>
     );

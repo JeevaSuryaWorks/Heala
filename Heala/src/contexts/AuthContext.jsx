@@ -62,20 +62,29 @@ export const AuthProvider = ({ children }) => {
                     profile = updatedProfile;
                 }
             }
+            
+            console.log('Fetched profile:', profile);
+
             // If doctor, fetch expert-specific details
             if (profile.role === 'doctor') {
-                const { data: doctorData } = await supabase
+                const { data: doctorData, error: doctorError } = await supabase
                     .from('doctors')
-                    .select('consultation_method, verification_status')
+                    .select('*, consultation_method, verification_status')
                     .eq('profile_id', authUser.id)
                     .single();
                 
-                if (doctorData) {
+                if (doctorError) {
+                    console.error('Error fetching doctor record:', doctorError);
+                } else if (doctorData) {
+                    console.log('Fetched doctor data:', doctorData);
                     profile = { ...profile, doctorData };
+                } else {
+                    console.warn('No doctor record found for doctor profile!');
                 }
             }
             
             setUser({ ...authUser, ...profile });
+            console.log('Final user state:', { ...authUser, ...profile });
         } catch (error) {
             console.error('Error fetching user profile:', error.message);
             setUser(authUser);
@@ -123,10 +132,7 @@ export const AuthProvider = ({ children }) => {
             if (authError) return { success: false, message: authError.message };
 
             // 2. The database trigger 'handle_new_user' automatically creates the profile.
-            // If role is doctor, we still need to insert into the specialized doctors table.
             if (authData?.user && role === 'doctor') {
-                // Wait slightly or rely on the synchronous trigger. 
-                // Usually triggers are synchronous within the same transaction.
                 const { error: doctorError } = await supabase
                     .from('doctors')
                     .insert([{
@@ -148,7 +154,7 @@ export const AuthProvider = ({ children }) => {
 
                 if (doctorError) {
                     console.error("Doctor profile creation error:", doctorError);
-                    return { success: true, warning: 'Account created but doctor details failed to save.' };
+                    return { success: false, message: 'Account created but doctor profile failed: ' + doctorError.message };
                 }
             }
 

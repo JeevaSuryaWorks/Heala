@@ -61,7 +61,6 @@ const Register = () => {
         }
     };
 
-    const [isRegistered, setIsRegistered] = useState(false);
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -80,12 +79,7 @@ const Register = () => {
             if (result.success) {
                 // Send welcome email via Resend
                 sendWelcomeEmail(formData.email, formData.name).catch(console.error);
-
-                if (result.needsConfirmation) {
-                    setIsRegistered(true);
-                } else {
-                    navigate('/onboarding');
-                }
+                navigate('/onboarding');
             } else {
                 setError(result.message);
                 // Go back to first step if there's a basic auth error
@@ -247,28 +241,6 @@ const Register = () => {
         }
     };
 
-    if (isRegistered) {
-        return (
-            <div style={containerStyle}>
-                <div style={glowTopStyle} />
-                <div className="animate-slide-up" style={cardStyle}>
-                    <div style={iconContainerStyle}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M22 2L11 13"></path><path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-                        </svg>
-                    </div>
-                    <h1 style={titleStyle}>Check Your Inbox<span style={{ color: 'var(--color-primary)' }}>.</span></h1>
-                    <p style={subtitleStyle}>Excellent! A verification link is on its way to <strong>{formData.email}</strong>. Once verified, you can access your portal.</p>
-                    {formData.role === 'doctor' && (
-                        <p style={{ ...subtitleStyle, fontSize: '0.95rem', marginTop: '-1rem', color: 'var(--color-primary)', fontWeight: '700' }}>
-                            Note: Doctor profiles require manual approval after email verification.
-                        </p>
-                    )}
-                    <button onClick={() => navigate('/login')} style={btnStyle} className="auth-btn">Go to Login</button>
-                </div>
-            </div>
-        );
-    }
 
     const totalSteps = formData.role === 'doctor' ? 3 : 1;
 
