@@ -129,6 +129,14 @@ const Navbar = () => {
                                     AI Chatbot
                                     <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/chatbot') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
                                 </Link>
+                                <Link to="/health-vault" style={{
+                                    fontWeight: '600', fontSize: '1rem',
+                                    color: isActive('/health-vault') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                    transition: 'all 0.3s ease', position: 'relative', textDecoration: 'none', padding: '0.5rem 0'
+                                }} className="nav-link">
+                                    Health Vault
+                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/health-vault') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
+                                </Link>
                                 <Link to="/payments" style={{
                                     fontWeight: '600', fontSize: '1rem',
                                     color: isActive('/payments') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',

@@ -15,6 +15,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import BookAppointment from './pages/BookAppointment';
 import Team from './pages/Team';
 import Chatbot from './pages/Chatbot';
+import HealthVault from './pages/HealthVault';
 import Payments from './pages/Payments';
 
 // Components
@@ -71,6 +72,14 @@ function App() {
                         element={
                             <ProtectedRoute allowedRoles={['patient']}>
                                 <BookAppointment />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/health-vault"
+                        element={
+                            <ProtectedRoute allowedRoles={['patient']}>
+                                <HealthVault />
                             </ProtectedRoute>
                         }
                     />

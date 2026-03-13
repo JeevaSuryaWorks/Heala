@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../config/supabaseConfig';
+import ReviewSection from '../components/ReviewSection';
 
 
 const DoctorProfile = () => {
@@ -128,7 +129,7 @@ const DoctorProfile = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '3rem' }}>
                     <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(30px)', border: '1px solid var(--glass-border)', borderRadius: '40px', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--glass-border)' }}>
-                            {['about', 'availability', 'location'].map(tab => (
+                            {['about', 'availability', 'location', 'reviews'].map(tab => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
@@ -238,6 +239,12 @@ const DoctorProfile = () => {
                                             🚀 Start Navigation
                                         </a>
                                     </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'reviews' && (
+                                <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                                    <ReviewSection doctorId={doctor.id} doctorName={doctor.profiles?.name} />
                                 </div>
                             )}
                         </div>

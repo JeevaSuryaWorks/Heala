@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabaseConfig';
+import { generatePrescriptionPDF } from '../utils/PDFService';
 
 const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     const { user } = useAuth();
@@ -11,6 +12,7 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(null);
     const [prescription, setPrescription] = useState('');
     const [actionLoading, setActionLoading] = useState(null); // Track which appointment ID is processing
+    const [prescriptionItems, setPrescriptionItems] = useState([{ medicine: '', dosage: '', duration: '', instructions: '' }]);
 
     useEffect(() => {
         setActiveTab(defaultTab);
@@ -132,22 +134,33 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
     const submitPrescription = async (e) => {
         e.preventDefault();
         try {
-            // In a real app, we'd have a prescriptions table. 
-            // For now, we'll mark as completed and maybe store notes in appointments.
+            const appointment = showPrescriptionModal;
+            const patient = appointment.profiles;
+
             const { error } = await supabase
                 .from('appointments')
                 .update({ 
                     status: 'completed',
-                    reason: `${appointments.find(a => a.id === showPrescriptionModal.id).reason}\n\nPRESCRIPTION: ${prescription}`
+                    reason: `${appointment.reason}\n\nPRESCRIPTION:\n${prescriptionItems.map(i => `- ${i.medicine}: ${i.dosage} (${i.duration})`).join('\n')}\n\nADVICE: ${prescription}`
                 })
-                .eq('id', showPrescriptionModal.id);
+                .eq('id', appointment.id);
 
             if (error) throw error;
             
+            // Generate PDF
+            generatePrescriptionPDF({
+                doctor: doctorProfile,
+                patient,
+                appointment,
+                items: prescriptionItems,
+                advice: prescription
+            });
+
             fetchDoctorData();
             setShowPrescriptionModal(null);
             setPrescription('');
-            alert('Consultation completed and saved!');
+            setPrescriptionItems([{ medicine: '', dosage: '', duration: '', instructions: '' }]);
+            alert('Consultation completed and PDF Prescription generated!');
         } catch (error) {
             console.error('Error completing appointment:', error.message);
         }
@@ -442,19 +455,79 @@ const DoctorDashboard = ({ defaultTab = 'appointments' }) => {
                     <div style={{ background: 'var(--color-bg-primary)', border: '1px solid var(--glass-border)', borderRadius: '32px', padding: '3rem', width: '100%', maxWidth: '600px', boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5)' }}>
                         <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '1rem' }}>Final Summary</h2>
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2.5rem' }}>Recording clinical data for <strong>{showPrescriptionModal.profiles?.name}</strong>.</p>
-                        <form onSubmit={submitPrescription}>
-                            <div style={{ marginBottom: '2.5rem' }}>
-                                <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '800', color: 'var(--color-text-secondary)' }}>Medical Advice & Notes</label>
-                                <textarea
-                                    value={prescription}
-                                    onChange={(e) => setPrescription(e.target.value)}
-                                    placeholder="Enter diagnosis, advice, or prescribed medicines..."
-                                    style={{ width: '100%', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '20px', color: 'var(--color-text-primary)', minHeight: '200px', outline: 'none' }}
-                                    required
-                                />
+                        <form onSubmit={submitPrescription} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div style={{ maxHeight: '40vh', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '1rem', fontWeight: '800', fontSize: '1.2rem' }}>Medications</label>
+                                {prescriptionItems.map((item, idx) => (
+                                    <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--glass-border)', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                            <input 
+                                                placeholder="Medicine Name" 
+                                                value={item.medicine}
+                                                onChange={(e) => {
+                                                    const newItems = [...prescriptionItems];
+                                                    newItems[idx].medicine = e.target.value;
+                                                    setPrescriptionItems(newItems);
+                                                }}
+                                                style={{ flex: 2, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white' }}
+                                                required
+                                            />
+                                            <input 
+                                                placeholder="Dosage (e.g. 1-0-1)" 
+                                                value={item.dosage}
+                                                onChange={(e) => {
+                                                    const newItems = [...prescriptionItems];
+                                                    newItems[idx].dosage = e.target.value;
+                                                    setPrescriptionItems(newItems);
+                                                }}
+                                                style={{ flex: 1, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white' }}
+                                                required
+                                            />
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '1rem' }}>
+                                            <input 
+                                                placeholder="Duration (e.g. 5 days)" 
+                                                value={item.duration}
+                                                onChange={(e) => {
+                                                    const newItems = [...prescriptionItems];
+                                                    newItems[idx].duration = e.target.value;
+                                                    setPrescriptionItems(newItems);
+                                                }}
+                                                style={{ flex: 1, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white' }}
+                                                required
+                                            />
+                                            <input 
+                                                placeholder="Instructions (e.g. After food)" 
+                                                value={item.instructions}
+                                                onChange={(e) => {
+                                                    const newItems = [...prescriptionItems];
+                                                    newItems[idx].instructions = e.target.value;
+                                                    setPrescriptionItems(newItems);
+                                                }}
+                                                style={{ flex: 2, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white' }}
+                                            />
+                                        </div>
+                                        {prescriptionItems.length > 1 && (
+                                            <button type="button" onClick={() => setPrescriptionItems(prev => prev.filter((_, i) => i !== idx))} style={{ alignSelf: 'flex-end', background: 'transparent', border: 'none', color: 'var(--color-error)', fontWeight: '800', cursor: 'pointer' }}>Remove</button>
+                                        )}
+                                    </div>
+                                ))}
+                                <button type="button" onClick={() => setPrescriptionItems(prev => [...prev, { medicine: '', dosage: '', duration: '', instructions: '' }])} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px dashed var(--glass-border)', background: 'transparent', color: 'var(--color-primary)', fontWeight: '800', cursor: 'pointer', marginBottom: '2rem' }}>+ Add Another Medicine</button>
+                                
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '800', color: 'var(--color-text-secondary)' }}>Additional Advice & Notes</label>
+                                    <textarea
+                                        value={prescription}
+                                        onChange={(e) => setPrescription(e.target.value)}
+                                        placeholder="Enter diet advice, follow-up date, or general notes..."
+                                        style={{ width: '100%', padding: '1.2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '20px', color: 'var(--color-text-primary)', minHeight: '120px', outline: 'none' }}
+                                        required
+                                    />
+                                </div>
                             </div>
+
                             <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button type="submit" style={{ flex: 2, padding: '1.2rem', borderRadius: '18px', border: 'none', background: '#10b981', color: 'white', fontWeight: '900', cursor: 'pointer' }}>Save & Complete</button>
+                                <button type="submit" style={{ flex: 2, padding: '1.2rem', borderRadius: '18px', border: 'none', background: '#10b981', color: 'white', fontWeight: '900', cursor: 'pointer', boxShadow: '0 10px 20px -5px rgba(16, 185, 129, 0.4)' }}>Save & Generate PDF</button>
                                 <button type="button" onClick={() => setShowPrescriptionModal(null)} style={{ flex: 1, padding: '1.2rem', borderRadius: '18px', border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
                             </div>
                         </form>
