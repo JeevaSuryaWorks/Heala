@@ -33,7 +33,7 @@ const Navbar = () => {
     const getDashboardLink = () => {
         if (!user) return '/login';
         switch (role) {
-            case 'patient': return '/patient-dashboard';
+            case 'patient': return '/doctors';
             case 'doctor': return '/doctor-dashboard';
             case 'admin': return '/admin-dashboard';
             default: return '/login';
@@ -43,9 +43,9 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     // Check if we are on an auth or onboarding page
-    const hideNavbarRoutes = ['/login', '/register', '/onboarding'];
-    // In some setups, you might have trailing slashes or sub-paths, but this handles the exact match
-    if (hideNavbarRoutes.includes(location.pathname)) {
+    const hideNavbarRoutes = ['/login', '/register', '/onboarding', '/doctor-dashboard', '/appointments', '/medical-history'];
+    
+    if (hideNavbarRoutes.includes(location.pathname) || location.pathname.startsWith('/prescription/')) {
         return null;
     }
 
@@ -111,7 +111,7 @@ const Navbar = () => {
                 {/* Desktop Navigation */}
                 <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
-                        {role === 'patient' && (
+                        {role === 'patient' ? (
                             <>
                                 <Link to="/doctors" style={{
                                     fontWeight: '600', fontSize: '1rem',
@@ -129,24 +129,24 @@ const Navbar = () => {
                                     AI Chatbot
                                     <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/chatbot') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
                                 </Link>
-                                <Link to="/health-vault" style={{
+                                <Link to="/history" style={{
                                     fontWeight: '600', fontSize: '1rem',
-                                    color: isActive('/health-vault') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                    color: isActive('/history') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                                     transition: 'all 0.3s ease', position: 'relative', textDecoration: 'none', padding: '0.5rem 0'
                                 }} className="nav-link">
-                                    Health Vault
-                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/health-vault') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
+                                    History
+                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/history') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
                                 </Link>
-                                <Link to="/payments" style={{
+                                <Link to="/notifications" style={{
                                     fontWeight: '600', fontSize: '1rem',
-                                    color: isActive('/payments') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                    color: isActive('/notifications') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                                     transition: 'all 0.3s ease', position: 'relative', textDecoration: 'none', padding: '0.5rem 0'
                                 }} className="nav-link">
-                                    Payments
-                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/payments') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
+                                    Notifications
+                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/notifications') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
                                 </Link>
                             </>
-                        )}
+                        ) : null}
 
                         {role === 'doctor' && (
                             <>
@@ -173,6 +173,14 @@ const Navbar = () => {
                                 }} className="nav-link">
                                     History
                                     <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/medical-history') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
+                                </Link>
+                                <Link to="/notifications" style={{
+                                    fontWeight: '600', fontSize: '1rem',
+                                    color: isActive('/notifications') ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                    transition: 'all 0.3s ease', position: 'relative', textDecoration: 'none', padding: '0.5rem 0'
+                                }} className="nav-link">
+                                    Notifications
+                                    <div style={{ position: 'absolute', bottom: '0', left: '50%', transform: 'translateX(-50%)', height: '2px', width: isActive('/notifications') ? '100%' : '0%', background: 'var(--gradient-primary)', borderRadius: '2px', transition: 'width 0.3s ease' }} className="nav-indicator"></div>
                                 </Link>
                             </>
                         )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabaseConfig';
+import ModernDropdown from '../components/ModernDropdown';
 
 const Onboarding = () => {
     const { user } = useAuth();
@@ -61,7 +62,7 @@ const Onboarding = () => {
             
             // Navigate to appropriate dashboard based on role
             if (user?.role === 'patient') {
-                navigate('/patient-dashboard');
+                navigate('/doctors');
             } else if (user?.role === 'doctor') {
                 navigate('/doctor-dashboard');
             } else if (user?.role === 'admin') {
@@ -150,16 +151,17 @@ const Onboarding = () => {
                                 }} placeholder="E.g. 28" />
                             </div>
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: '600' }}>Gender</label>
-                                <select name="gender" value={formData.gender} onChange={handleChange} required={step === 1} style={{
-                                    width: '100%', padding: '1rem 1.25rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--glass-border)',
-                                    borderRadius: '16px', color: 'var(--color-text-secondary)', outline: 'none', transition: 'all 0.3s ease', appearance: 'none'
-                                }}>
-                                    <option value="" disabled>Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                <ModernDropdown
+                                    label="Gender"
+                                    placeholder="Select Gender"
+                                    options={[
+                                        { value: 'Male', label: 'Male' },
+                                        { value: 'Female', label: 'Female' },
+                                        { value: 'Other', label: 'Other' }
+                                    ]}
+                                    value={formData.gender}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, gender: val }))}
+                                />
                             </div>
                         </div>
                     </div>
@@ -189,17 +191,18 @@ const Onboarding = () => {
                     <div style={{ display: step === 3 ? 'block' : 'none', animation: 'fadeIn 0.5s ease' }}>
                         <h3 style={{ fontFamily: '"Outfit", sans-serif', fontSize: '1.5rem', marginBottom: '1.5rem' }}>Medical Overview</h3>
                         <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: '600' }}>Blood Group</label>
-                            <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} required={step === 3} style={{
-                                width: '100%', padding: '1rem 1.25rem', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--glass-border)',
-                                borderRadius: '16px', color: 'var(--color-text-secondary)', outline: 'none', transition: 'all 0.3s ease', appearance: 'none'
-                            }}>
-                                <option value="" disabled>Select Group</option>
-                                <option value="A+">A+</option><option value="A-">A-</option>
-                                <option value="B+">B+</option><option value="B-">B-</option>
-                                <option value="O+">O+</option><option value="O-">O-</option>
-                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
-                            </select>
+                            <ModernDropdown
+                                label="Blood Group"
+                                placeholder="Select Group"
+                                options={[
+                                    { value: 'A+', label: 'A+' }, { value: 'A-', label: 'A-' },
+                                    { value: 'B+', label: 'B+' }, { value: 'B-', label: 'B-' },
+                                    { value: 'O+', label: 'O+' }, { value: 'O-', label: 'O-' },
+                                    { value: 'AB+', label: 'AB+' }, { value: 'AB-', label: 'AB-' }
+                                ]}
+                                value={formData.bloodGroup}
+                                onChange={(val) => setFormData(prev => ({ ...prev, bloodGroup: val }))}
+                            />
                         </div>
                         <div style={{ marginBottom: '1.5rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--color-text-secondary)', fontWeight: '600' }}>Any known allergies?</label>

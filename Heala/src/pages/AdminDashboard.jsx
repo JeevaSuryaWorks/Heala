@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../config/supabaseConfig';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import ModernDropdown from '../components/ModernDropdown';
 
 const AdminDashboard = () => {
     const { user: currentUser } = useAuth();
@@ -287,11 +288,17 @@ const AdminDashboard = () => {
                                 <form onSubmit={handlePostNews} style={{ background: 'rgba(255,255,255,0.02)', padding: '2.5rem', borderRadius: '32px', border: '1px solid var(--glass-border)', height: 'fit-content' }}>
                                     <h4 style={{ margin: '0 0 2rem', fontSize: '1.2rem', fontWeight: '800' }}>Post New Update</h4>
                                     <input value={newsTitle} onChange={e => setNewsTitle(e.target.value)} placeholder="Title" required style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white', marginBottom: '1rem' }} />
-                                    <select value={newsCategory} onChange={e => setNewsCategory(e.target.value)} style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white', marginBottom: '1rem' }}>
-                                        <option value="Health">Health Tip</option>
-                                        <option value="Update">Platform Update</option>
-                                        <option value="Emergency">Emergency Alert</option>
-                                    </select>
+                                    <ModernDropdown
+                                        placeholder="Select Category"
+                                        options={[
+                                            { value: 'Health', label: 'Health Tip' },
+                                            { value: 'Update', label: 'Platform Update' },
+                                            { value: 'Emergency', label: 'Emergency Alert' }
+                                        ]}
+                                        value={newsCategory}
+                                        onChange={(val) => setNewsCategory(val)}
+                                        containerStyle={{ marginBottom: '1rem' }}
+                                    />
                                     <textarea value={newsContent} onChange={e => setNewsContent(e.target.value)} placeholder="Content..." required rows="5" style={{ width: '100%', padding: '1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', borderRadius: '12px', color: 'white', marginBottom: '1.5rem', resize: 'none' }} />
                                     <button type="submit" style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'var(--color-primary)', color: 'white', fontWeight: '800', border: 'none', cursor: 'pointer' }}>Publish Now</button>
                                 </form>

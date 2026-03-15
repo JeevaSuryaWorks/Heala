@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabaseConfig';
+import ModernDropdown from '../components/ModernDropdown';
 
 const BookAppointment = () => {
     const { doctorId } = useParams();
@@ -10,10 +11,12 @@ const BookAppointment = () => {
 
     const [doctor, setDoctor] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [step, setStep] = useState(1);
     const [bookingData, setBookingData] = useState({
         appointment_date: '',
         appointment_time: '',
+        appointment_type: 'General Checkup',
         reason: '',
         paymentMethod: 'card'
     });
@@ -52,6 +55,8 @@ const BookAppointment = () => {
     };
 
     const handleBooking = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         try {
             const { error } = await supabase
                 .from('appointments')
@@ -60,6 +65,7 @@ const BookAppointment = () => {
                     doctor_id: doctor.id,
                     appointment_date: bookingData.appointment_date,
                     appointment_time: bookingData.appointment_time,
+                    appointment_type: bookingData.appointment_type,
                     reason: bookingData.reason,
                     amount: doctor.fee + 100,
                     status: 'pending'
@@ -70,6 +76,8 @@ const BookAppointment = () => {
         } catch (error) {
             console.error('Error booking appointment:', error.message);
             alert('Failed to book appointment: ' + error.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -146,19 +154,28 @@ const BookAppointment = () => {
                                         style={{ width: '100%', padding: '1.2rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '18px', color: 'var(--color-text-primary)', outline: 'none', transition: 'all 0.3s ease' }}
                                     />
                                 </div>
-                                <div>
-                                    <label style={{ display: 'block', marginBottom: '1rem', fontWeight: '800', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>Available Slots</label>
-                                    <select
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <ModernDropdown
+                                        label="Consultation Type"
+                                        placeholder="Select appointment type"
+                                        options={[
+                                            { value: 'General Checkup', label: 'General Checkup' },
+                                            { value: 'Follow-up', label: 'Follow-up' },
+                                            { value: 'Emergency', label: 'Emergency' },
+                                            { value: 'Prescription Refill', label: 'Prescription Refill' }
+                                        ]}
+                                        value={bookingData.appointment_type}
+                                        onChange={(val) => setBookingData({ ...bookingData, appointment_type: val })}
+                                        icon="🏥"
+                                    />
+                                    <ModernDropdown
+                                        label="Available Slots"
+                                        placeholder="Select time slot"
+                                        options={(doctor.availability.monday || ['09:00', '10:00', '11:00', '14:00', '16:00']).map(t => ({ value: t, label: t }))}
                                         value={bookingData.appointment_time}
-                                        onChange={(e) => setBookingData({ ...bookingData, appointment_time: e.target.value })}
-                                        required
-                                        style={{ width: '100%', padding: '1.2rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--glass-border)', borderRadius: '18px', color: 'var(--color-text-primary)', outline: 'none' }}
-                                    >
-                                        <option value="" style={{ background: '#1a1a1a' }}>Select time slot</option>
-                                        {(doctor.availability.monday || ['09:00', '10:00', '11:00', '14:00', '16:00']).map(t => (
-                                            <option key={t} value={t} style={{ background: '#1a1a1a' }}>{t}</option>
-                                        ))}
-                                    </select>
+                                        onChange={(val) => setBookingData({ ...bookingData, appointment_time: val })}
+                                        icon="⏰"
+                                    />
                                 </div>
                             </div>
 
@@ -183,19 +200,11 @@ const BookAppointment = () => {
                         <h2 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '1rem' }}>Final Review</h2>
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: '3.5rem', fontWeight: '600' }}>Please verify your session information before proceeding.</p>
 
-                        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '24px', padding: '2.5rem', marginBottom: '3.5rem', border: '1px solid var(--glass-border)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                                <span style={{ color: 'var(--color-text-secondary)', fontWeight: '700' }}>Specialist Consultation Fee</span>
-                                <span style={{ fontWeight: '900', fontSize: '1.1rem' }}>₹{doctor.fee}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                                <span style={{ color: 'var(--color-text-secondary)', fontWeight: '700' }}>Digital Platform Service</span>
-                                <span style={{ fontWeight: '900', fontSize: '1.1rem' }}>₹100</span>
-                            </div>
-                            <div style={{ height: '1px', background: 'var(--glass-border)', margin: '2rem 0' }} />
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--color-primary)' }}>
-                                <span style={{ fontWeight: '900', fontSize: '1.6rem' }}>Total Payable</span>
-                                <span style={{ fontWeight: '900', fontSize: '1.6rem' }}>₹{doctor.fee + 100}</span>
+                        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '24px', padding: '2.5rem', marginBottom: '3.5rem', border: '1px solid var(--glass-border)', textAlign: 'center' }}>
+                            <div style={{ color: 'var(--color-text-secondary)' }}>
+                                <span style={{ fontSize: '1.5rem', display: 'block', marginBottom: '1rem' }}>📋</span>
+                                <span style={{ fontWeight: '700', fontSize: '1.1rem' }}>Fees Based on Your Treatments.</span>
+                                <p style={{ margin: '0.5rem 0 0', fontSize: '0.9rem', opacity: 0.8 }}>Final charges will be discussed during your consultation.</p>
                             </div>
                         </div>
 
@@ -209,7 +218,9 @@ const BookAppointment = () => {
 
                         <div style={{ display: 'flex', gap: '1.5rem' }}>
                             <button onClick={() => setStep(1)} style={{ flex: 1, padding: '1.3rem', borderRadius: '20px', border: '1px solid var(--glass-border)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: '800', cursor: 'pointer' }}>Edit Details</button>
-                            <button onClick={handleBooking} style={{ flex: 2, padding: '1.3rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: '900', cursor: 'pointer', boxShadow: '0 15px 30px -10px rgba(139, 92, 246, 0.4)' }}>Confirm & Book</button>
+                            <button onClick={handleBooking} disabled={isSubmitting} style={{ flex: 2, padding: '1.3rem', borderRadius: '20px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: '900', cursor: 'pointer', boxShadow: '0 15px 30px -10px rgba(139, 92, 246, 0.4)', opacity: isSubmitting ? 0.7 : 1 }}>
+                                {isSubmitting ? 'Booking...' : 'Confirm & Book'}
+                            </button>
                         </div>
                     </div>
                 )}
@@ -223,7 +234,7 @@ const BookAppointment = () => {
                         </p>
                         
                         <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-                            <Link to="/patient-dashboard" style={{ padding: '1.2rem 3rem', borderRadius: '20px', background: 'var(--color-primary)', color: 'white', textDecoration: 'none', fontWeight: '900', boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.3)' }}>My Portal</Link>
+                            <Link to="/doctors" style={{ padding: '1.2rem 3rem', borderRadius: '20px', background: 'var(--color-primary)', color: 'white', textDecoration: 'none', fontWeight: '900', boxShadow: '0 10px 20px -5px rgba(139, 92, 246, 0.3)' }}>Return to Search</Link>
                             <Link to="/" style={{ padding: '1.2rem 3rem', borderRadius: '20px', border: '1px solid var(--glass-border)', color: 'var(--color-text-primary)', textDecoration: 'none', fontWeight: '800' }}>Return Home</Link>
                         </div>
                     </div>

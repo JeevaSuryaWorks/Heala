@@ -9,23 +9,24 @@ import Register from './pages/Register';
 import Onboarding from './pages/Onboarding';
 import DoctorSearch from './pages/DoctorSearch';
 import DoctorProfile from './pages/DoctorProfile';
-import PatientDashboard from './pages/PatientDashboard';
-import DoctorDashboard from './pages/DoctorDashboard';
+import ModernDoctorDashboard from './pages/ModernDoctorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import BookAppointment from './pages/BookAppointment';
 import Team from './pages/Team';
 import Chatbot from './pages/Chatbot';
-import HealthVault from './pages/HealthVault';
-import Payments from './pages/Payments';
+import PrescriptionView from './pages/PrescriptionView';
+import Notifications from './pages/Notifications';
+import PatientHistory from './pages/PatientHistory';
 
 // Components
 import Navbar from './components/Navbar';
+import HealaLoader from './components/HealaLoader';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     const { user, loading } = useAuth();
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <HealaLoader fullScreen={true} />;
     if (!user) return <Navigate to="/login" />;
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
         return <Navigate to="/" />;
@@ -47,6 +48,7 @@ function App() {
                     <Route path="/doctors" element={<DoctorSearch />} />
                     <Route path="/doctor/:id" element={<DoctorProfile />} />
                     <Route path="/team" element={<Team />} />
+                    <Route path="/prescription/:id" element={<PrescriptionView />} />
 
                     {/* Common Protected Routes */}
                     <Route
@@ -60,14 +62,6 @@ function App() {
 
                     {/* Patient Routes */}
                     <Route
-                        path="/patient-dashboard"
-                        element={
-                            <ProtectedRoute allowedRoles={['patient']}>
-                                <PatientDashboard />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
                         path="/book/:doctorId"
                         element={
                             <ProtectedRoute allowedRoles={['patient']}>
@@ -76,10 +70,18 @@ function App() {
                         }
                     />
                     <Route
-                        path="/health-vault"
+                        path="/notifications"
                         element={
                             <ProtectedRoute allowedRoles={['patient']}>
-                                <HealthVault />
+                                <Notifications />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/history"
+                        element={
+                            <ProtectedRoute allowedRoles={['patient']}>
+                                <PatientHistory />
                             </ProtectedRoute>
                         }
                     />
@@ -91,21 +93,13 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
-                    <Route
-                        path="/payments"
-                        element={
-                            <ProtectedRoute allowedRoles={['patient']}>
-                                <Payments />
-                            </ProtectedRoute>
-                        }
-                    />
 
                     {/* Doctor Routes */}
                     <Route
                         path="/doctor-dashboard"
                         element={
                             <ProtectedRoute allowedRoles={['doctor']}>
-                                <DoctorDashboard />
+                                <ModernDoctorDashboard />
                             </ProtectedRoute>
                         }
                     />
@@ -113,7 +107,7 @@ function App() {
                         path="/appointments"
                         element={
                             <ProtectedRoute allowedRoles={['doctor']}>
-                                <DoctorDashboard defaultTab="appointments" />
+                                <ModernDoctorDashboard initialPage="schedule" />
                             </ProtectedRoute>
                         }
                     />
@@ -121,7 +115,7 @@ function App() {
                         path="/medical-history"
                         element={
                             <ProtectedRoute allowedRoles={['doctor']}>
-                                <DoctorDashboard defaultTab="history" />
+                                <ModernDoctorDashboard initialPage="patients" />
                             </ProtectedRoute>
                         }
                     />

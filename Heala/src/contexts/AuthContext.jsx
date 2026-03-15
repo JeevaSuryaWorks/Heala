@@ -65,22 +65,20 @@ export const AuthProvider = ({ children }) => {
             
             console.log('Fetched profile:', profile);
 
-            // If doctor, fetch expert-specific details
-            if (profile.role === 'doctor') {
-                const { data: doctorData, error: doctorError } = await supabase
-                    .from('doctors')
-                    .select('*, consultation_method, verification_status')
-                    .eq('profile_id', authUser.id)
-                    .single();
-                
-                if (doctorError) {
-                    console.error('Error fetching doctor record:', doctorError);
-                } else if (doctorData) {
-                    console.log('Fetched doctor data:', doctorData);
-                    profile = { ...profile, doctorData };
-                } else {
-                    console.warn('No doctor record found for doctor profile!');
-                }
+            // Try to fetch doctor-specific details in case the user has a doctor profile
+            // This happens if an admin is also a registered doctor, or if the role was auto-promoted but they still act as an expert
+            const { data: doctorData, error: doctorError } = await supabase
+                .from('doctors')
+                .select('*, verification_status')
+                .eq('profile_id', authUser.id)
+                .single();
+            
+            if (doctorData) {
+                console.log('Fetched doctor data:', doctorData);
+                profile = { ...profile, doctorData };
+            } else if (doctorError && doctorError.code !== 'PGRST116') {
+                // If the error isn't "row not found", log it
+                console.warn('Error checking doctor profile:', doctorError.message);
             }
             
             setUser({ ...authUser, ...profile });
