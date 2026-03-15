@@ -11,8 +11,9 @@ const Notifications = () => {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        if (!user) return;
+
         const fetchNotifications = async () => {
-            if (!user) return;
             setLoading(true);
             try {
                 // 1. Fetch News (Broadcasts) - Everyone sees this
@@ -90,7 +91,6 @@ const Notifications = () => {
 
                 // Sort unified array chronologically (newest first)
                 unified.sort((a, b) => b.date - a.date);
-
                 setNotifications(unified);
             } catch (err) {
                 console.error("Fetch notifications error", err);
@@ -101,6 +101,25 @@ const Notifications = () => {
         };
 
         fetchNotifications();
+
+        // REAL-TIME: Listen for new personal notifications
+        const channel = supabase.channel(`user-notifications-${user.id}`)
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'notifications',
+                filter: `user_id=eq.${user.id}`
+            }, () => fetchNotifications())
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'news'
+            }, () => fetchNotifications())
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [user]);
 
     if (loading) return <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><HealaLoader /></div>;

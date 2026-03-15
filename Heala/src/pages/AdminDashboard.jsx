@@ -251,12 +251,15 @@ const AdminDashboard = () => {
                                 <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-text-tertiary)', fontWeight: 600 }}>License: {doc.license_number} | {doc.clinic_name}</p>
                             </div>
                         </div>
-                        {doc.verification_status === 'pending' && (
-                            <div style={{ display: 'flex', gap: '1rem' }}>
-                                <button onClick={() => handleVerification(doc, 'approved')} style={{ padding: '0.8rem 1.8rem', borderRadius: '14px', border: 'none', background: '#10b981', color: 'white', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease' }}>Verify & Approve</button>
-                                <button onClick={() => handleVerification(doc, 'rejected')} style={{ padding: '0.8rem 1.8rem', borderRadius: '14px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', fontWeight: '800', cursor: 'pointer' }}>Reject</button>
-                            </div>
-                        )}
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button onClick={() => setMsgUser({ id: doc.profile_id, name: doc.profiles?.name, email: doc.profiles?.email })} style={{ padding: '0.8rem 1.8rem', borderRadius: '14px', border: '1px solid var(--color-primary)', background: 'transparent', color: 'var(--color-primary)', fontWeight: '800', cursor: 'pointer' }}>Message</button>
+                            {doc.verification_status === 'pending' && (
+                                <>
+                                    <button onClick={() => handleVerification(doc, 'approved')} style={{ padding: '0.8rem 1.8rem', borderRadius: '14px', border: 'none', background: '#10b981', color: 'white', fontWeight: '800', cursor: 'pointer', transition: 'all 0.3s ease' }}>Verify & Approve</button>
+                                    <button onClick={() => handleVerification(doc, 'rejected')} style={{ padding: '0.8rem 1.8rem', borderRadius: '14px', border: '1px solid #ef4444', background: 'transparent', color: '#ef4444', fontWeight: '800', cursor: 'pointer' }}>Reject</button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
