@@ -43,7 +43,7 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     // Check if we are on an auth or onboarding page
-    const hideNavbarRoutes = ['/login', '/register', '/onboarding', '/doctor-dashboard', '/appointments', '/medical-history'];
+    const hideNavbarRoutes = ['/login', '/register', '/onboarding', '/doctor-dashboard', '/admin-dashboard', '/appointments', '/medical-history'];
     
     if (hideNavbarRoutes.includes(location.pathname) || location.pathname.startsWith('/prescription/')) {
         return null;

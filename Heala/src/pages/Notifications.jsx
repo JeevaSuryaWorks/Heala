@@ -15,7 +15,7 @@ const Notifications = () => {
             if (!user) return;
             setLoading(true);
             try {
-                // Fetch News Addressed to Everyone
+                // 1. Fetch News (Broadcasts) - Everyone sees this
                 const { data: newsData, error: newsError } = await supabase
                     .from('news')
                     .select('*')
@@ -23,14 +23,27 @@ const Notifications = () => {
                 
                 if (newsError) throw newsError;
 
-                // Fetch Prescriptions for this Patient
-                const { data: presData, error: presError } = await supabase
-                    .from('prescriptions')
-                    .select('*, doctor:doctors(*, profile:profiles(name))')
-                    .eq('patient_id', user.id)
+                // 2. Fetch Prescriptions - ONLY for patients
+                let presData = [];
+                if (user.role === 'patient') {
+                    const { data, error: presError } = await supabase
+                        .from('prescriptions')
+                        .select('*, doctor:doctors(*, profile:profiles(name))')
+                        .eq('patient_id', user.id)
+                        .order('created_at', { ascending: false });
+                    
+                    if (presError) throw presError;
+                    presData = data || [];
+                }
+
+                // 3. Fetch Personal Notifications - DIRECT MESSAGES
+                const { data: directData, error: directError } = await supabase
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', user.id)
                     .order('created_at', { ascending: false });
 
-                if (presError) throw presError;
+                if (directError) throw directError;
 
                 // Standardize the shape to match a unified Notification type
                 const unified = [];
@@ -48,7 +61,20 @@ const Notifications = () => {
                     });
                 }
 
-                if (presData) {
+                if (directData) {
+                    directData.forEach(item => {
+                        unified.push({
+                            id: `direct-${item.id}`,
+                            type: 'direct',
+                            title: item.title,
+                            message: item.message,
+                            date: new Date(item.created_at),
+                            originalData: item
+                        });
+                    });
+                }
+
+                if (presData.length > 0) {
                     presData.forEach(item => {
                         unified.push({
                             id: `pres-${item.id}`,
@@ -106,11 +132,11 @@ const Notifications = () => {
                             <div style={{
                                 width: '48px', height: '48px', borderRadius: '12px', flexShrink: 0,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                background: item.type === 'news' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(20, 184, 166, 0.1)',
-                                color: item.type === 'news' ? '#3b82f6' : '#14b8a6',
+                                background: item.type === 'news' ? 'rgba(59, 130, 246, 0.1)' : item.type === 'direct' ? 'rgba(168, 85, 247, 0.1)' : 'rgba(20, 184, 166, 0.1)',
+                                color: item.type === 'news' ? '#3b82f6' : item.type === 'direct' ? '#a855f7' : '#14b8a6',
                                 fontSize: '1.5rem'
                             }}>
-                                {item.type === 'news' ? '📢' : '⚕️'}
+                                {item.type === 'news' ? '📢' : item.type === 'direct' ? '💬' : '⚕️'}
                             </div>
 
                             <div style={{ flex: 1 }}>

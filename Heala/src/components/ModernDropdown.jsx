@@ -52,10 +52,10 @@ const ModernDropdown = ({
                 style={{
                     width: '100%',
                     padding: '1rem 1.25rem',
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid var(--border, rgba(255,255,255,0.1))',
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border)',
                     borderRadius: '14px',
-                    color: selectedOption ? 'inherit' : 'var(--color-text-muted)',
+                    color: selectedOption ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',

@@ -72,7 +72,7 @@ function App() {
                     <Route
                         path="/notifications"
                         element={
-                            <ProtectedRoute allowedRoles={['patient']}>
+                            <ProtectedRoute allowedRoles={['patient', 'doctor']}>
                                 <Notifications />
                             </ProtectedRoute>
                         }
