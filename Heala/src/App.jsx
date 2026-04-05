@@ -17,6 +17,7 @@ import Chatbot from './pages/Chatbot';
 import PrescriptionView from './pages/PrescriptionView';
 import Notifications from './pages/Notifications';
 import PatientHistory from './pages/PatientHistory';
+import Enjoy from './pages/Enjoy';
 
 // Components
 import Navbar from './components/Navbar';
@@ -37,7 +38,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
 function App() {
     return (
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Navbar />
             <main style={{ flex: 1 }}>
                 <Routes>
@@ -49,6 +50,7 @@ function App() {
                     <Route path="/doctor/:id" element={<DoctorProfile />} />
                     <Route path="/team" element={<Team />} />
                     <Route path="/prescription/:id" element={<PrescriptionView />} />
+                    <Route path="/enjoy" element={<Enjoy />} />
 
                     {/* Common Protected Routes */}
                     <Route
