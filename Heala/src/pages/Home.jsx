@@ -176,77 +176,131 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* REVOLUTIONARY FEATURES SECTION */}
-            <section style={{ padding: '12rem 0', background: 'var(--color-bg-secondary)', position: 'relative', overflow: 'hidden' }}>
-                <div className="container">
-                    <div className="grid grid-cols-12 items-start" style={{ gap: '4rem' }}>
-                        <div className="col-span-5" style={{ position: 'sticky', top: '150px' }}>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(8, 145, 178, 0.08)', padding: '0.6rem 1.2rem', borderRadius: '100px', marginBottom: '2rem', border: '1px solid rgba(8, 145, 178, 0.2)' }}>
-                                <span style={{ width: '8px', height: '8px', background: 'var(--color-primary)', borderRadius: '50%', boxShadow: '0 0 10px var(--color-primary)' }}></span>
-                                <span style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '2px' }}>Care Reimagined</span>
-                            </div>
-                            <h2 style={{ fontSize: '4.5rem', fontWeight: 950, lineHeight: '1.2', letterSpacing: '-3px', marginBottom: '2rem', color: 'var(--color-text-primary)' }}>
-                                Care that <br />
-                                <span style={{
-                                    background: 'linear-gradient(to right, var(--color-primary), var(--color-secondary))',
-                                    WebkitBackgroundClip: 'text',
-                                    backgroundClip: 'text',
-                                    WebkitTextFillColor: 'transparent',
-                                    color: 'transparent',
-                                    display: 'inline-block'
-                                }}>comes to you.</span>
-                            </h2>
-                            <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)', lineHeight: '1.8', marginBottom: '3rem', fontWeight: 500 }}>
-                                We've engineered a seamless healthcare ecosystem where clinical expertise meets digital fluidness. No friction. No waiting. Just recovery.
-                            </p>
-                            <div style={{ display: 'flex', gap: '20px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>🧪</div>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>🧠</div>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>💖</div>
-                            </div>
+            {/* REVOLUTIONARY FEATURES SECTION - REDESIGNED BENTO GRID */}
+            <section style={{ padding: '10rem 0', background: 'var(--color-bg-primary)', position: 'relative', overflow: 'hidden' }}>
+                {/* Immersive glow background */}
+                <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', width: '1000px', height: '1000px', background: 'radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 60%)', filter: 'blur(80px)' }}></div>
+
+                <div className="container" style={{ position: 'relative', zIndex: 10 }}>
+                    <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'rgba(59, 130, 246, 0.1)', padding: '0.6rem 1.5rem', borderRadius: '100px', marginBottom: '2rem', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+                            <span style={{ width: '10px', height: '10px', background: '#3b82f6', borderRadius: '50%', boxShadow: '0 0 15px #3b82f6' }}></span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '2px' }}>Next-Gen Healthcare Ecosystem</span>
+                        </div>
+                        <h2 style={{ fontSize: '5.5rem', fontWeight: 950, lineHeight: '1.1', letterSpacing: '-3px', color: 'var(--color-text-primary)', margin: 0 }}>
+                            <span style={{ color: 'var(--color-text-secondary)', fontWeight: 800 }}>Care that</span> <br />
+                            <span style={{
+                                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
+                                WebkitBackgroundClip: 'text',
+                                backgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                color: 'transparent',
+                                paddingBottom: '0.1em'
+                            }}>comes to you.</span>
+                        </h2>
+                    </div>
+
+                    {/* Bento Box Layout */}
+                    <div className="grid grid-cols-3" style={{ gap: '2rem', gridAutoRows: '1fr' }}>
+                        {/* Featured Large Card */}
+                        <div className="glass-panel" style={{
+                            gridColumn: 'span 2', padding: '4rem', borderRadius: '2.5rem',
+                            background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4))',
+                            border: '1px solid rgba(255,255,255,0.8)',
+                            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                            position: 'relative', overflow: 'hidden', transition: 'all 0.4s ease'
+                        }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = '0 30px 60px -20px rgba(59, 130, 246, 0.2)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.05)'; }}>
+                            <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)', borderRadius: '50%' }}></div>
+                            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', color: '#3b82f6', marginBottom: '2rem', border: '1px solid rgba(59, 130, 246, 0.2)' }}>🧬</div>
+                            <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: '1rem' }}>Neural Matching AI</h3>
+                            <p style={{ fontSize: '1.2rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', fontWeight: 500, maxWidth: '500px' }}>Our proprietary AI cross-references 50+ clinical data points against a global database to find the absolute perfect specialist tailored exactly to your unique biology.</p>
                         </div>
 
-                        <div className="col-span-7 grid grid-cols-2" style={{ gap: '2rem' }}>
-                            {[
-                                { title: 'Neural Matching', icon: '🔍', color: '#3b82f6', desc: 'Our AI finds the perfect medical match for your specific condition based on 50+ clinical data points.' },
-                                { title: 'Fluid Booking', icon: '⚡', color: '#10b981', desc: 'Instant access to global specialists with zero friction. Book, confirm, and heal in seconds.' },
-                                { title: 'Vault Access', icon: '🔒', color: '#8b5cf6', desc: 'Military-grade encryption for your lifelong medical data. Your history, globally accessible by you.' },
-                                { title: 'Treatment Sync', icon: '🔄', color: '#f59e0b', desc: 'Real-time synchronization between your wearable data and your doctors clinical console.' }
-                            ].map((item, i) => (
-                                <div key={i} className="glass-panel" style={{
-                                    padding: '3rem', borderRadius: '2.5rem', border: '1px solid rgba(0,0,0,0.05)',
-                                    background: 'rgba(255,255,255,0.7)', transition: 'all 0.4s ease',
-                                    display: 'flex', flexDirection: 'column', gap: '1.5rem',
-                                    marginTop: i % 2 !== 0 ? '4rem' : '0',
-                                    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)',
-                                    backdropFilter: 'blur(20px)'
-                                }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-15px)'; e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 30px 60px -20px rgba(0,0,0,0.1)'; }}>
-                                    <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: item.color, boxShadow: `0 15px 30px ${item.color}20` }}>{item.icon}</div>
-                                    <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text-primary)' }}>{item.title}</h3>
-                                    <p style={{ fontSize: '1.05rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', fontWeight: 500 }}>{item.desc}</p>
+                        {/* Standard Square Card 1 */}
+                        <div className="glass-panel" style={{
+                            padding: '3rem', borderRadius: '2.5rem',
+                            background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4))',
+                            border: '1px solid rgba(255,255,255,0.8)',
+                            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                            transition: 'all 0.4s ease'
+                        }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = '0 30px 60px -20px rgba(16, 185, 129, 0.2)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.05)'; }}>
+                            <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: '#10b981', marginBottom: '1.5rem' }}>⚡</div>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: '1rem' }}>Fluid Booking</h3>
+                            <p style={{ fontSize: '1.05rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', fontWeight: 500 }}>Zero friction. Confirm appointments in seconds, directly from your device anywhere on earth.</p>
+                        </div>
+
+                        {/* Standard Square Card 2 */}
+                        <div className="glass-panel" style={{
+                            padding: '3rem', borderRadius: '2.5rem',
+                            background: 'linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.4))',
+                            border: '1px solid rgba(255,255,255,0.8)',
+                            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.05)', backdropFilter: 'blur(20px)',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                            transition: 'all 0.4s ease'
+                        }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = '0 30px 60px -20px rgba(139, 92, 246, 0.2)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.05)'; }}>
+                            <div style={{ width: '70px', height: '70px', borderRadius: '20px', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', color: '#8b5cf6', marginBottom: '1.5rem' }}>🔒</div>
+                            <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: '1rem' }}>Military Vault</h3>
+                            <p style={{ fontSize: '1.05rem', color: 'var(--color-text-secondary)', lineHeight: '1.6', fontWeight: 500 }}>End-to-end encrypted medical history. Your data stays entirely in your control forever.</p>
+                        </div>
+
+                        {/* Featured Large Card 2 */}
+                        <div className="glass-panel col-span-2" style={{
+                            gridColumn: 'span 2', padding: '4rem', borderRadius: '2.5rem',
+                            background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8))',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.2)', backdropFilter: 'blur(20px)',
+                            display: 'flex', alignItems: 'center', gap: '3rem',
+                            position: 'relative', overflow: 'hidden', transition: 'all 0.4s ease'
+                        }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = '0 30px 60px -20px rgba(245, 158, 11, 0.3)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.2)'; }}>
+                            {/* Inner neon accents */}
+                            <div style={{ position: 'absolute', bottom: '-50px', left: '50%', transform: 'translateX(-50%)', width: '200px', height: '100px', background: 'radial-gradient(ellipse, rgba(245, 158, 11, 0.4) 0%, transparent 70%)', filter: 'blur(40px)' }}></div>
+                            
+                            <div style={{ flex: 1, position: 'relative', zIndex: 2 }}>
+                                <div style={{ display: 'inline-flex', padding: '0.4rem 1rem', background: 'rgba(255,255,255,0.1)', borderRadius: '100px', marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '1px' }}>IOS & ANDROID SYNC</span>
                                 </div>
-                            ))}
+                                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'white', marginBottom: '1rem' }}>Live Treatment Sync</h3>
+                                <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.7)', lineHeight: '1.6', fontWeight: 400, margin: 0 }}>
+                                    Seamlessly bridge the gap between wearables and clinical care. Your vitals are streaming securely and live to your specialists dashboard.
+                                </p>
+                            </div>
+                            <div style={{ flex: '0 0 auto', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', border: '1px solid rgba(245, 158, 11, 0.2)', position: 'relative', zIndex: 2 }}>
+                                🔄
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* EXPERT WALL SECTION */}
-            <section style={{ padding: '12rem 0', background: 'var(--color-bg-primary)', position: 'relative' }}>
-                <div className="container">
+            {/* EXPERT WALL SECTION - DARK NEON REDESIGN */}
+            <section style={{ padding: '12rem 0', background: '#030712', position: 'relative', overflow: 'hidden' }}>
+                {/* Immersive Dark Orbs */}
+                <div style={{ position: 'absolute', top: '0', left: '0', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%)', filter: 'blur(80px)' }}></div>
+                <div style={{ position: 'absolute', bottom: '0', right: '0', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%)', filter: 'blur(100px)' }}></div>
+                
+                <div className="container" style={{ position: 'relative', zIndex: 10 }}>
                     <div className="text-center" style={{ marginBottom: '8rem' }}>
-                        <h2 className="animate-reveal" style={{ fontSize: '5rem', fontWeight: 950, letterSpacing: '-4px', lineHeight: '1', color: 'var(--color-text-primary)', marginBottom: '2rem' }}>
+                        <h2 style={{ fontSize: '5.5rem', fontWeight: 950, letterSpacing: '-4px', lineHeight: '1.1', color: '#ffffff', margin: '0 0 2rem 0' }}>
                             Expert care for <br />
-                            <span style={{ color: 'var(--color-primary)' }}>every condition.</span>
+                            <span style={{ 
+                                background: 'linear-gradient(to right, #60a5fa, #c084fc)',
+                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
+                            }}>every condition.</span>
                         </h2>
-                        <p style={{ maxWidth: '700px', margin: '0 auto', fontSize: '1.3rem', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                            Access a global roster of board-certified specialists across 50+ medical domains, unified by Healas clinical protocol.
+                        <p style={{ maxWidth: '750px', margin: '0 auto', fontSize: '1.3rem', color: 'rgba(255,255,255,0.6)', fontWeight: 500, lineHeight: '1.8' }}>
+                            Access a global roster of board-certified specialists across 50+ medical domains, unified entirely by Heala's elite clinical protocol system.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-4" style={{ gap: '2rem' }}>
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(4, 1fr)', 
+                        gap: '2rem' 
+                    }}>
                         {[
-                            { name: 'Cardiology', icon: '🫀', color: '#ff4d4d', docCount: '120+' },
+                            { name: 'Cardiology', icon: '🫀', color: '#ef4444', docCount: '120+' },
                             { name: 'Neurology', icon: '🧠', color: '#3b82f6', docCount: '85+' },
                             { name: 'Pediatrics', icon: '🧸', color: '#f97316', docCount: '150+' },
                             { name: 'Dermatology', icon: '✨', color: '#d946ef', docCount: '92+' },
@@ -255,25 +309,66 @@ const Home = () => {
                             { name: 'Oncology', icon: '🎗️', color: '#ec4899', docCount: '64+' },
                             { name: 'Emergency', icon: '🚑', color: '#ef4444', docCount: '24/7' }
                         ].map((spec, i) => (
-                            <div key={i} className="spec-card" style={{
-                                padding: '3rem 2rem', background: 'var(--color-bg-secondary)',
-                                borderRadius: '35px', border: '1px solid transparent', textAlign: 'center',
-                                transition: 'all 0.3s ease', cursor: 'pointer', position: 'relative', overflow: 'hidden'
+                            <div key={i} className="dark-spec-card" style={{
+                                padding: '3.5rem 2.5rem', 
+                                background: 'rgba(255,255,255,0.02)',
+                                borderRadius: '2.5rem', 
+                                border: '1px solid rgba(255,255,255,0.05)', 
+                                textAlign: 'center',
+                                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)', 
+                                cursor: 'pointer', 
+                                position: 'relative', 
+                                overflow: 'hidden',
+                                backdropFilter: 'blur(20px)'
                             }}>
-                                <div style={{ fontSize: '4rem', marginBottom: '1.5rem', transition: 'transform 0.3s ease' }} className="icon-bounce">{spec.icon}</div>
-                                <h4 style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>{spec.name}</h4>
-                                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-tertiary)', fontWeight: 800 }}>{spec.docCount} PRACTITIONERS</span>
-                                <div className="spec-hover-glow" style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at center, ${spec.color}15 0%, transparent 70%)`, opacity: 0, transition: 'opacity 0.3s' }}></div>
+                                <div style={{ 
+                                    position: 'absolute', top: 0, left: 0, right: 0, height: '4px', 
+                                    background: `linear-gradient(90deg, transparent, ${spec.color}, transparent)`,
+                                    opacity: 0, transition: 'opacity 0.4s ease'
+                                }} className="card-top-glow"></div>
+                                
+                                <div style={{ fontSize: '4.5rem', marginBottom: '2rem', transition: 'all 0.4s ease', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }} className="icon-levitate">
+                                    {spec.icon}
+                                </div>
+                                <h4 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffffff', marginBottom: '0.8rem', letterSpacing: '0.5px' }}>{spec.name}</h4>
+                                <div style={{ display: 'inline-block', padding: '0.4rem 1.2rem', background: 'rgba(255,255,255,0.05)', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px' }}>{spec.docCount} Pros</span>
+                                </div>
+                                
+                                {/* Inner reactive glow */}
+                                <div className="spec-hover-glow" style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at center, ${spec.color}15 0%, transparent 60%)`, opacity: 0, transition: 'opacity 0.5s' }}></div>
                             </div>
                         ))}
                     </div>
 
-                    <div style={{ marginTop: '6rem', textAlign: 'center' }}>
-                        <Link to="/doctors" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', padding: '1.5rem 4rem', borderRadius: '100px', background: 'var(--color-text-primary)', color: 'white', textDecoration: 'none', fontWeight: 900, fontSize: '1.1rem', transition: 'all 0.3s' }}>
-                            VIEW GLOBAL DIRECTORY 🌐
+                    <div style={{ marginTop: '7rem', textAlign: 'center' }}>
+                        <Link to="/doctors" className="btn-dark-glow" style={{ 
+                            display: 'inline-flex', alignItems: 'center', gap: '15px', 
+                            padding: '1.8rem 4.5rem', borderRadius: '100px', 
+                            background: 'white', color: '#030712', 
+                            textDecoration: 'none', fontWeight: 950, fontSize: '1.2rem', 
+                            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                            border: 'none', position: 'relative', overflow: 'hidden'
+                        }}>
+                            EXPLORE GLOBAL DIRECTORY
                         </Link>
                     </div>
                 </div>
+                <style>{`
+                    .dark-spec-card:hover { 
+                        background: rgba(255,255,255,0.05) !important; 
+                        transform: translateY(-15px) scale(1.02); 
+                        border-color: rgba(255,255,255,0.2) !important;
+                        box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8);
+                    }
+                    .dark-spec-card:hover .spec-hover-glow { opacity: 1 !important; }
+                    .dark-spec-card:hover .card-top-glow { opacity: 1 !important; }
+                    .dark-spec-card:hover .icon-levitate { transform: scale(1.15) translateY(-5px); }
+                    .btn-dark-glow:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 20px 40px -10px rgba(255,255,255,0.3);
+                    }
+                `}</style>
             </section>
 
             {/* SPECIALIZED FOUNDER SECTION - GOBIKA RANGASAMY */}
